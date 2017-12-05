@@ -12,15 +12,6 @@ storekeeper_api.prototype = {
 		delete ss_result;
 	},
 
-	test_count : function()
-	{
-		if(storekeeper_global_object['test_count'] == null)
-			storekeeper_global_object['test_count'] = 0;
-		else
-			storekeeper_global_object['test_count']++;
-		this.__set_result(storekeeper_global_object['test_count'], "");
-	},
-
 	print_info : function(info) {
 		pst_log(info);
 	},
@@ -122,61 +113,6 @@ storekeeper_api.prototype = {
 		delete new_bunch;
 	},
 
-	add_item_test : function(bunch_name, item) {
-		var start_time = new Date();
-		var add_keys = pst_add_item(bunch_name, item);
-		var end_time = new Date();
-		
-		var ss_result = {};
-		ss_result["duration"] = (end_time.getSeconds() * 1000 + end_time.getMilliseconds())
-		 - (start_time.getSeconds() * 1000 + start_time.getMilliseconds());
-		ss_result["result"] = add_keys;
-
-		pst_query_result(JSON.stringify(ss_result));
-	},
-
-	get_item_test : function(list)
-	{
-		var list_str = JSON.stringify(list);
-		list_str = list_str.substr(1, list_str.length-2)
-		var start_time = new Date();
-		var find_items = eval('pst_get_item('+list_str+')');
-		var end_time = new Date();
-		var ss_result = {};
-		ss_result["duration"] = (end_time.getSeconds() * 1000 + end_time.getMilliseconds())
-		 - (start_time.getSeconds() * 1000 + start_time.getMilliseconds());
-		ss_result["result"] = find_items;
-
-		pst_query_result(JSON.stringify(ss_result));
-	},
-
-	del_item_test : function(bunch_name, hash_key) {
-		// hash_key is string.
-		var start_time = new Date();
-		var ret_val = pst_delete_item(bunch_name, hash_key);
-		var end_time = new Date();
-		var ss_result = {};
-		ss_result["duration"] = (end_time.getSeconds() * 1000 + end_time.getMilliseconds())
-		 - (start_time.getSeconds() * 1000 + start_time.getMilliseconds());
-		ss_result["result"] = ret_val;
-
-		pst_query_result(JSON.stringify(ss_result));
-	},
-
-	del_item_test2 : function(bunch_name)
-	{
-// pst_log("Delete Bunch : " + JSON.stringify(storekeeper_global_object['car_days']));
-		var delete_bunch = storekeeper_global_object['car_days'].shift();
-pst_log("Delete Bunch : " + delete_bunch)
-		var find_items = pst_find_item(delete_bunch, 'wh_find_item', 'function wh_find_item() { return "1"; }', "");
-		for(var idx in find_items)
-		{
-			var find_obj = find_items[idx];
-			var ret_val = pst_delete_item(delete_bunch, find_obj.hash_key);
-// pst_log(ret_val);
-		}
-	},
-
 	get_item : function(list)
 	{
 		var list_str = JSON.stringify(list);
@@ -198,7 +134,6 @@ pst_log("Delete Bunch : " + delete_bunch)
 	edit_item : function(bunch_name, item, hash_key)
 	{
 		var ret_val = pst_edit_item(bunch_name, hash_key, item);
-//		pst_log("Edit ex");
 		if (!ret_val)
 			pst_log("failed to edit item");
 		else
@@ -217,10 +152,7 @@ pst_log("Delete Bunch : " + delete_bunch)
 		for(idx in find_items)
 		{
 			var find_obj = find_items[idx];
-pst_log("Hash : " + JSON.stringify(find_obj.hash_key));
-
 		}
-// pst_log(JSON.stringify(find_items));
 		this.__set_result(find_items, "");
 	},
 
@@ -262,7 +194,6 @@ pst_log("Hash : " + JSON.stringify(find_obj.hash_key));
 				{
 					var list = JSON.parse(find_items[f_idx].find_item);
 					total_count = total_count + list.length;
-					// pst_log("List Count = " + list.length+", Total Count = " + total_count);
 					if(total_count > 100000)
 					{
 						this.__set_result("", "Max Count = (100,000), cur = ( "+total_count+" )...");
@@ -275,11 +206,6 @@ pst_log("Hash : " + JSON.stringify(find_obj.hash_key));
 				}
 				delete find_items;
 			}
-			// else
-			// {
-			// 	this.__set_result("", "Bunch Not Found. ( " + run_bunch_name + " )");
-			// 	return;
-			// }
 			s_date.setDate(s_date.getDate()+1);
 		}
 		if(ret.length > 0)
@@ -326,29 +252,8 @@ pst_log("Hash : " + JSON.stringify(find_obj.hash_key));
 			{
 				var find_items = pst_find_item(run_bunch_name, func_name, func_code, func_args);
 
-				// for( var f_idx in find_items)
-				// {
-				// 	var list = JSON.parse(find_items[f_idx].find_item);
-				// 	for(oidx in list)
-				// 	{
-				// 		if(obj[list[oidx][1]] == null)
-				// 			obj[list[oidx][1]] = {};
-				// 		var conn_id = list[oidx][2].split("_");
-				// 		var clct_id = conn_id[0];
-				// 		if(obj[list[oidx][1]][clct_id] == null)
-				// 			obj[list[oidx][1]][clct_id] = [];
-				// 		obj[list[oidx][1]][clct_id].push(list[oidx]);
-				// 		total_count = total_count + 1;
-				// 	}
-				// 	delete list;
-				// }
 				delete find_items;
 			}
-			// else
-			// {
-			// 	this.__set_result("", "Bunch Not Found.");
-			// 	return;
-			// }
 			delete run_bunch_name;
 			s_date.setDate(s_date.getDate()+1);
 		}
@@ -527,7 +432,6 @@ pst_log("Hash : " + JSON.stringify(find_obj.hash_key));
 			return;
 		}
 		var find_items = pst_find_item("cctv", "get_list", func_get_list, "");
-// pst_log("load_cctv : " + JSON.stringify(find_items));
 		for(var idx in find_items)
 		{
 			var find_obj = JSON.parse(find_items[idx].find_item);
@@ -550,32 +454,19 @@ pst_log("Hash : " + JSON.stringify(find_obj.hash_key));
 	get_global_object(item)
 	{
 		this.__set_result(storekeeper_global_object[item], "");
-		//return JSON.stringify(storekeeper_global_object[item]);
 	},
 
 	init_val : function()
 	{
-		// if(!storekeeper_global_object['init'])
-		// {
-		// 	storekeeper_global_object['init'] = true;
-		// 	this.load_npa();
-		// 	this.load_conn();
-		// 	this.load_cctv();	
-		// }
-pst_log("Init");
-		// if(storekeeper_global_object['car_days'] == null)
-		// {
-			storekeeper_global_object['car_days'] = [];
-			var bunch_list = pst_list_bunch();
-			for(var idx in bunch_list)
+		storekeeper_global_object['car_days'] = [];
+		var bunch_list = pst_list_bunch();
+		for(var idx in bunch_list)
+		{
+			if(bunch_list[idx].substr(0,8) == 'pass_car')
 			{
-				if(bunch_list[idx].substr(0,8) == 'pass_car')
-				{
-					pst_log("Bunch : " + bunch_list[idx]);
-					storekeeper_global_object['car_days'].push(bunch_list[idx]);
-				}
+				storekeeper_global_object['car_days'].push(bunch_list[idx]);
 			}
-		// }
+		}
 	},
 
 	commit : function() {
@@ -627,7 +518,6 @@ pst_log("Init");
 			{
 				var find_items = pst_find_item(run_bunch_name, func_name, func_code, JSON.stringify(find_obj));
 				total_count = total_count + find_items.length;
-				// pst_log("List Count = " + list.length+", Total Count = " + total_count);
 				if(total_count > 100000)
 				{
 					this.__set_result("", "Max Count = (100,000), cur = ( "+total_count+" )...");
@@ -712,7 +602,6 @@ function find_items(db_item, find_item)
 		return null;
 }
 
-///// add for Police
 function find_index()
 {
 	return "1";
@@ -1043,13 +932,3 @@ var func_wh_find_car_count = wh_find_car_count.toString();
 var func_get_list = get_list.toString();
 var func_find_index = find_index.toString();
 var func_wh_find_item = wh_find_item.toString();
-
-// function del_bunch()
-// {
-
-// }
-
-// del_bunch();
-	// pApi.find_item('pass_car20171002', 'wh_find_item', func_wh_find_item, '');
-// pApi.del_item_test2('pass_car20171002');
-// pApi.init_val();
