@@ -515,9 +515,9 @@ function wh_find_car(db_item, find_string)
 	}
 	else
 	{
-		if(list[0][0] < find_obj["PASS_DTTM"].e)
+		if(list[0][0] <= find_obj["PASS_DTTM"].e)
 		{
-			if(list[list.length-1][0] > find_obj["PASS_DTTM"].s)
+			if(list[list.length-1][0] >= find_obj["PASS_DTTM"].s)
 			{
 				for(var idx = 0; idx < list.length; idx++)
 				{
